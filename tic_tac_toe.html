@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            margin-top: 20px;
+        }
+        #tabla {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 5px;
+            justify-content: center;
+            margin: 20px auto;
+        }
+        .cella {
+            width: 100px;
+            height: 100px;
+            background-color: #fff;
+            border: 2px solid #333;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .cella.foglalt {
+            cursor: not-allowed;
+        }
+        #uzenet {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tic Tac Toe</h1>
+    <div id="tabla"></div>
+    <div id="uzenet"></div>
+    <button onclick="ujrainditas()">Újraindítás</button>
+
+    <script>
+        const tabla = document.getElementById('tabla');
+        const uzenet = document.getElementById('uzenet');
+
+        let aktualisJatekos = 'X';
+        let jatekAktiv = true;
+        let jatekAllapot = Array(9).fill(null);
+
+        function tablaLetrehozasa() {
+            tabla.innerHTML = '';
+            jatekAllapot.forEach((_, index) => {
+                const cella = document.createElement('div');
+                cella.classList.add('cella');
+                cella.dataset.index = index;
+                cella.addEventListener('click', cellaKattintas);
+                tabla.appendChild(cella);
+            });
+        }
+
+        function cellaKattintas(esemeny) {
+            const cella = esemeny.target;
+            const index = cella.dataset.index;
+
+            if (jatekAllapot[index] || !jatekAktiv) {
+                return;
+            }
+
+            jatekAllapot[index] = aktualisJatekos;
+            cella.textContent = aktualisJatekos;
+            cella.classList.add('foglalt');
+
+            if (nyertesEllenorzes()) {
+                uzenet.textContent = `Játék vége! ${aktualisJatekos} nyert!`;
+                jatekAktiv = false;
+                return;
+            }
+
+            if (jatekAllapot.every(cella => cella)) {
+                uzenet.textContent = 'Döntetlen!';
+                jatekAktiv = false;
+                return;
+            }
+
+            aktualisJatekos = aktualisJatekos === 'X' ? 'O' : 'X';
+            uzenet.textContent = `Következő: ${aktualisJatekos}`;
+        }
+
+        function nyertesEllenorzes() {
+            const nyeroKombinaciok = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+
+            return nyeroKombinaciok.some(kombinacio => {
+                const [a, b, c] = kombinacio;
+                return jatekAllapot[a] && jatekAllapot[a] === jatekAllapot[b] && jatekAllapot[a] === jatekAllapot[c];
+            });
+        }
+
+        function ujrainditas() {
+            jatekAllapot = Array(9).fill(null);
+            aktualisJatekos = 'X';
+            jatekAktiv = true;
+            uzenet.textContent = `Kezdő játékos: ${aktualisJatekos}`;
+            tablaLetrehozasa();
+        }
+
+        tablaLetrehozasa();
+        uzenet.textContent = `Kezdő játékos: ${aktualisJatekos}`;
+    </script>
+</body>
+</html>
